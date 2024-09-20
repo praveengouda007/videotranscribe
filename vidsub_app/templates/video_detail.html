@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Video Details{% endblock %}
+
+{% block content %}
+<h2>{{ video.title }}</h2>
+<video id="videoPlayer" controls>
+    <source src="{{ video.file.url }}" type="video/mp4">
+    <source src="{{ video.file.url }}" type="video/x-matroska">  <!-- Added mkv support -->
+    Your browser does not support the video tag.
+</video>
+
+<h3>Subtitles</h3>
+<ul id="subtitles">
+    {% for subtitle in subtitles %}
+    <li><a href="#" onclick="seekTo({{ subtitle.timestamp }})">{{ subtitle.text }}</a></li>
+    {% empty %}
+    <li>No subtitles available.</li>
+    {% endfor %}
+</ul>
+
+<h3>Search Subtitles</h3>
+<input type="text" id="searchInput" placeholder="Search subtitles">
+<button onclick="searchSubtitles()">Search</button>
+
+<script>
+// Function to seek video to a specific timestamp
+function seekTo(timestamp) {
+    const videoPlayer = document.getElementById('videoPlayer');
+    videoPlayer.currentTime = timestamp;
+    videoPlayer.play();
+}
+
+// Function to search and filter subtitles
+function searchSubtitles() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    document.querySelectorAll('#subtitles li').forEach(subtitle => {
+        const text = subtitle.innerText.toLowerCase();
+        subtitle.style.display = text.includes(query) ? '' : 'none';
+    });
+}
+</script>
+
+{% endblock %}

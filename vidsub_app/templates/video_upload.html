@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Video{% endblock %}
+
+{% block content %}
+<h2>Upload Video</h2>
+<form action="{% url 'video_upload' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="title">Video Title:</label>
+        <input type="text" id="title" name="title" required>
+    </div>
+    <div class="form-group">
+        <label for="video">Choose Video File (MP4, MKV):</label>
+        <input type="file" id="video" name="video" accept=".mp4, .mkv" required>
+    </div>
+    <button type="submit">Upload Video</button>
+</form>
+<a href="{% url 'video_list' %}">Back to Video List</a>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Videos{% endblock %}
+
+{% block content %}
+<h2>Upload Video</h2>
+<form action="{% url 'video_upload' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" required>
+
+    <label for="file">Video File (MP4, MKV):</label>
+    <input type="file" id="file" name="video" accept=".mp4, .mkv" required>
+
+    <button type="submit">Upload Video</button>
+</form>
+
+<h2>Latest Video</h2>
+{% if latest_video %}
+    <h3>{{ latest_video.title }}</h3>
+    <video id="latestVideoPlayer" controls>
+        <source src="{{ latest_video.file.url }}" type="video/mp4">
+        <source src="{{ latest_video.file.url }}" type="video/x-matroska">  <!-- Support for mkv -->
+        Your browser does not support the video tag.
+    </video>
+
+    <h3>Subtitles</h3>
+    <ul id="latestSubtitles">
+        {% for subtitle in latest_video.subtitles.all %}
+        <li><a href="#" onclick="seekTo({{ subtitle.timestamp }})">{{ subtitle.text }}</a></li>
+        {% empty %}
+        <li>No subtitles available.</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Search Subtitles</h3>
+    <input type="text" id="searchInput" placeholder="Search subtitles">
+    <button onclick="searchSubtitles()">Search</button>
+{% else %}
+    <p>No videos uploaded yet.</p>
+{% endif %}
+
+<h2>List of Uploaded Videos</h2>
+<ul id="videoList">
+    {% for video in videos %}
+    <li>
+        <a href="{% url 'video_detail' video.id %}">{{ video.title }}</a>
+    </li>
+    {% empty %}
+    <li>No videos uploaded yet.</li>
+    {% endfor %}
+</ul>
+
+<script>
+const latestVideoPlayer = document.getElementById('latestVideoPlayer');
+
+// Function to seek video to a specific timestamp
+function seekTo(timestamp) {
+    latestVideoPlayer.currentTime = timestamp;
+    latestVideoPlayer.play();
+}
+
+// Function to search and filter subtitles
+function searchSubtitles() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    document.querySelectorAll('#latestSubtitles li').forEach(subtitle => {
+        const text = subtitle.innerText.toLowerCase();
+        subtitle.style.display = text.includes(query) ? '' : 'none';
+    });
+}
+</script>
+
+{% endblock %}
